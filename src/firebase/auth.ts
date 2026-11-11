@@ -35,7 +35,13 @@ export function getCachedUserProfile(): AuthProfile {
   const stored = localStorage.getItem(CURRENT_USER_KEY);
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      if (parsed.role === 'admin' && (parsed.nama?.includes('Bambang') || parsed.nama?.includes('Sudarsono'))) {
+        parsed.nama = 'Heru (Admin)';
+        parsed.email = 'ahmad.heru458@guru.smk.belajar.id';
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(parsed));
+      }
+      return parsed;
     } catch {
       // ignore
     }

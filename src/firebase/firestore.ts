@@ -104,7 +104,14 @@ function getInitialStore(): AppStateStorage {
   const stored = localStorage.getItem(LS_STORAGE_KEY);
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      const adminUser = parsed.users?.find((u: UserDoc) => u.role === 'admin' || u.uid === 'admin-1');
+      if (adminUser && (adminUser.nama.includes('Bambang') || adminUser.nama.includes('Sudarsono'))) {
+        adminUser.nama = 'Heru (Admin TKRO)';
+        adminUser.email = 'ahmad.heru458@guru.smk.belajar.id';
+        localStorage.setItem(LS_STORAGE_KEY, JSON.stringify(parsed));
+      }
+      return parsed;
     } catch {
       // parse error, fallback
     }
@@ -124,7 +131,7 @@ function getInitialStore(): AppStateStorage {
   }));
 
   const initialUsers: UserDoc[] = [
-    { uid: 'admin-1', nama: 'Bambang Sudarsono, S.Pd (Admin TKRO)', email: 'admin@smk-tkro.sch.id', role: 'admin', kelas: 'Semua Kelas' },
+    { uid: 'admin-1', nama: 'Heru (Admin TKRO)', email: 'ahmad.heru458@guru.smk.belajar.id', role: 'admin', kelas: 'Semua Kelas' },
     { uid: 'guru-1', nama: 'Ir. Hendra Gunawan, M.T. (Guru Mesin)', email: 'guru.hendra@smk-tkro.sch.id', role: 'guru', kelas: 'XII TKRO 1' },
     ...SEED_STUDENTS.map(s => ({
       uid: s.uid,

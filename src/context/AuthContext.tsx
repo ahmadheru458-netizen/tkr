@@ -66,8 +66,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let nama = 'Siswa TKRO (Rizki)';
     let email = 'rizki@siswa.smk.id';
     if (role === 'admin') {
-      nama = 'Bambang Sudarsono, S.Pd (Admin)';
-      email = 'admin@smk-tkro.sch.id';
+      nama = 'Heru (Admin)';
+      email = 'ahmad.heru458@guru.smk.belajar.id';
     } else if (role === 'guru') {
       nama = 'Ir. Hendra Gunawan, M.T. (Guru Mesin)';
       email = 'guru.hendra@smk-tkro.sch.id';
