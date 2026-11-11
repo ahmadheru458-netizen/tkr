@@ -1,0 +1,31 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isTeacherOrAdmin() {
+      return signedIn() && (
+        request.auth.token.role == "admin" ||
+        request.auth.token.role == "guru" ||
+        request.auth.token.email == "ahmad.heru458@guru.smk.belajar.id" ||
+        (request.auth.token.email != null && (
+          request.auth.token.email.matches('.*@guru\\..*') ||
+          request.auth.token.email.matches('.*guru.*')
+        ))
+      );
+    }
+
+    match /images/{allPaths=**} {
+      // Membaca gambar komponen diizinkan untuk semua pengguna terotentikasi
+      allow read: if signedIn();
+      // Mengunggah gambar hanya untuk Admin dan Guru (dengan validasi tipe berkas gambar dan ukuran maks 5MB)
+      allow write: if isTeacherOrAdmin()
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+  }
+}

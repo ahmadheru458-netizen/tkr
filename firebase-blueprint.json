@@ -1,0 +1,105 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Profil pengguna mencakup Guru, Siswa, dan Administrator",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "ID unik pengguna dari Firebase Auth" },
+        "nama": { "type": "string", "description": "Nama lengkap pengguna" },
+        "email": { "type": "string", "description": "Alamat email pengguna" },
+        "role": { "type": "string", "enum": ["admin", "guru", "siswa"], "description": "Hak akses peran pengguna" },
+        "kelas": { "type": "string", "description": "Nama kelas atau rombel SMK TKRO" }
+      },
+      "required": ["uid", "nama", "role"]
+    },
+    "Soal": {
+      "title": "Soal",
+      "description": "Bank data pertanyaan komponen mesin otomotif mobil TKRO",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "ID unik soal" },
+        "namaKomponen": { "type": "string", "description": "Nama komponen mesin otomotif" },
+        "gambar": { "type": "string", "description": "URL atau SVG asset gambar komponen" },
+        "jawaban": { "type": "string", "description": "Kunci jawaban benar" },
+        "kategori": { "type": "string", "description": "Kategori sistem mesin, cth: Kepala Silinder, Pelumasan, Pengapian" },
+        "level": { "type": "string", "enum": ["mudah", "sedang", "sulit"], "description": "Tingkat kesulitan soal" },
+        "poin": { "type": "number", "description": "Bobot nilai perolehan soal" },
+        "penjelasan": { "type": "string", "description": "Fungsi dan cara kerja komponen untuk feedback edukasi" }
+      },
+      "required": ["id", "namaKomponen", "jawaban", "kategori", "level", "poin"]
+    },
+    "Pertandingan": {
+      "title": "Pertandingan",
+      "description": "Sesi kompetisi Speed Battle di dalam kelas atau smart board",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "ID sesi pertandingan" },
+        "judul": { "type": "string", "description": "Judul babak kompetisi" },
+        "kodeRoom": { "type": "string", "description": "Kode ruangan untuk bergabung" },
+        "waktuMenit": { "type": "number", "description": "Durasi waktu pertandingan dalam menit" },
+        "tanggal": { "type": "string", "description": "Tanggal pelaksanaan kompetisi" },
+        "status": { "type": "string", "enum": ["persiapan", "aktif", "selesai"], "description": "Status ronde pertandingan" },
+        "modePermainan": { "type": "string", "description": "Tipe mode kuis (Speed Run, Buzzer Duel, dll)" },
+        "jumlahKelompok": { "type": "number", "description": "Jumlah kelompok yang bertanding" },
+        "kelas": { "type": "string", "description": "Kelas yang berkompetisi" }
+      },
+      "required": ["id", "judul", "kodeRoom", "status"]
+    },
+    "Kelompok": {
+      "title": "Kelompok",
+      "description": "Data regu/kelompok siswa dalam pertandingan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "ID tim kelompok" },
+        "pertandinganId": { "type": "string", "description": "ID sesi pertandingan terkait" },
+        "namaKelompok": { "type": "string", "description": "Nama tim kelompok mesin" },
+        "skor": { "type": "number", "description": "Total akumulasi skor poin" },
+        "waktu": { "type": "number", "description": "Waktu penyelesaian dalam detik" },
+        "warna": { "type": "string", "description": "Warna tema kelompok" },
+        "jawabanBenarCount": { "type": "number", "description": "Jumlah jawaban yang tepat" },
+        "jawabanSalahCount": { "type": "number", "description": "Jumlah jawaban salah" }
+      },
+      "required": ["id", "namaKelompok", "skor"]
+    },
+    "Hasil": {
+      "title": "Hasil",
+      "description": "Rekap nilai akhir siswa dan kelompok untuk asesmen kurikulum",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "ID catatan hasil" },
+        "pertandinganId": { "type": "string", "description": "ID sesi pertandingan" },
+        "siswa": { "type": "string", "description": "Nama siswa" },
+        "kelompok": { "type": "string", "description": "Nama kelompok" },
+        "skorBenar": { "type": "number", "description": "Jumlah benar" },
+        "kecepatan": { "type": "number", "description": "Rata-rata kecepatan respon" },
+        "nilai": { "type": "number", "description": "Nilai skala 0-100" },
+        "waktu": { "type": "number", "description": "Waktu dalam detik" },
+        "tanggal": { "type": "string", "description": "Tanggal tes" }
+      },
+      "required": ["id", "siswa", "nilai"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Koleksi profil pengguna aplikasi"
+    },
+    "/soal/{soalId}": {
+      "schema": { "$ref": "#/entities/Soal" },
+      "description": "Koleksi bank soal komponen mesin otomotif"
+    },
+    "/pertandingan/{pertandinganId}": {
+      "schema": { "$ref": "#/entities/Pertandingan" },
+      "description": "Koleksi sesi room dan status pertandingan"
+    },
+    "/kelompok/{kelompokId}": {
+      "schema": { "$ref": "#/entities/Kelompok" },
+      "description": "Koleksi skor dan data kelompok siswa yang bertanding"
+    },
+    "/hasil/{hasilId}": {
+      "schema": { "$ref": "#/entities/Hasil" },
+      "description": "Koleksi arsip hasil penilaian siswa dan ekspor rapor"
+    }
+  }
+}

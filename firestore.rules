@@ -1,0 +1,82 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function hasUserDoc() {
+      return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isTeacherEmail() {
+      return signedIn() && request.auth.token.email != null && (
+        request.auth.token.email.matches('.*@guru\\..*') ||
+        request.auth.token.email.matches('.*guru.*')
+      );
+    }
+
+    function isAdmin() {
+      return signedIn() && (
+        request.auth.token.role == "admin" ||
+        (hasUserDoc() && getUserRole() == "admin") ||
+        request.auth.token.email == "ahmad.heru458@guru.smk.belajar.id"
+      );
+    }
+
+    function isTeacher() {
+      return signedIn() && (
+        isAdmin() ||
+        request.auth.token.role == "guru" ||
+        (hasUserDoc() && getUserRole() == "guru") ||
+        isTeacherEmail()
+      );
+    }
+
+    function isStudent() {
+      return signedIn() && (
+        request.auth.token.role == "siswa" ||
+        (hasUserDoc() && getUserRole() == "siswa") ||
+        (!isAdmin() && !isTeacher())
+      );
+    }
+
+    // Profil Pengguna (Admin, Guru, Siswa)
+    match /users/{userId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Bank Soal Komponen Mesin
+    match /soal/{doc} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin() || isTeacher();
+    }
+
+    // Pertandingan Speed Battle
+    match /pertandingan/{doc} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() || isTeacher();
+    }
+
+    // Skor Kelompok
+    match /kelompok/{doc} {
+      allow read: if signedIn();
+      allow write: if isAdmin() || isTeacher();
+    }
+
+    // Hasil Akhir Siswa
+    match /hasil/{doc} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update: if isAdmin() || isTeacher();
+    }
+  }
+}
